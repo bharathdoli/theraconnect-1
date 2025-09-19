@@ -27,7 +27,7 @@ const slots_routes_js_1 = __importDefault(require("./api/slots/slots.routes.js")
 dotenv_1.default.config();
 const prisma = new client_1.PrismaClient();
 const app = (0, express_1.default)();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 // Global Middleware
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
