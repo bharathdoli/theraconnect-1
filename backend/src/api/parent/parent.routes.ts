@@ -1,0 +1,27 @@
+import { Router } from 'express';
+import { authenticate, authorize } from '../../middleware/auth.middleware';
+import { validate } from '../../middleware/validate.middleware';
+import { Role } from '@prisma/client';
+import {
+  getMyProfileHandler,
+  getMyChildrenHandler,
+  addChildHandler,
+  updateChildHandler,
+  deleteChildHandler,
+} from './parent.controller';
+import { childIdParamSchema, childSchema, updateChildSchema } from './parent.validation';
+
+const router = Router();
+
+// All routes are for authenticated Parents only
+router.use(authenticate, authorize([Role.PARENT]));
+
+router.get('/me/profile', getMyProfileHandler);
+
+// Children CRUD
+router.get('/me/children', getMyChildrenHandler);
+router.post('/me/children', validate({body : childSchema.shape.body}), addChildHandler);
+router.put('/me/children/:childId',validate({ body: updateChildSchema,params: childIdParamSchema.shape.params}),updateChildHandler);
+router.put('/me/children/:childId',validate({ body: updateChildSchema.shape.body, params: childIdParamSchema.shape.params,}),updateChildHandler);
+
+export default router;
