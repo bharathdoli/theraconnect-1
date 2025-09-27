@@ -31,3 +31,18 @@ export const deleteChild = async (childId: string, parentId: string) => {
         where: { id: childId, parentId },
     });
 };
+
+export const listActiveTherapists = async () => {
+    return prisma.therapistProfile.findMany({
+        where: { status: 'ACTIVE' },
+        select: {
+            id: true,
+            name: true,
+            specialization: true,
+            experience: true,
+            baseCostPerSession: true,
+            averageRating: true,
+        },
+        orderBy: { name: 'asc' },
+    });
+};

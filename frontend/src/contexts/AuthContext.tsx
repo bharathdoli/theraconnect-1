@@ -11,7 +11,8 @@ interface User {
 interface AuthContextType {
   user: User | null
   loading: boolean
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string, role?: string) => Promise<void>
+  register: (email: string, password: string, name: string, phone: string, role: string, specialization?: string, experience?: number, baseCostPerSession?: number) => Promise<void>
   registerParent: (data: RegisterParentData) => Promise<void>
   registerTherapist: (data: RegisterTherapistData) => Promise<void>
   registerAdmin: (data: RegisterAdminData) => Promise<void>
@@ -74,16 +75,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(false)
   }, [])
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, role?: string) => {
     try {
       const response = await authAPI.login(email, password)
       const { user: userData, token } = response.data
+      
+      // If role is specified, check if user has that role
+      if (role && userData.role !== role) {
+        throw new Error(`Access denied. This account is for ${userData.role.toLowerCase()}s, not ${role.toLowerCase()}s.`)
+      }
       
       localStorage.setItem('token', token)
       localStorage.setItem('user', JSON.stringify(userData))
       setUser(userData)
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Login failed')
+      throw new Error(error.response?.data?.message || error.message || 'Login failed')
+    }
+  }
+
+  const register = async (email: string, password: string, name: string, phone: string, role: string, specialization?: string, experience?: number, baseCostPerSession?: number) => {
+    try {
+      let response
+      if (role === 'PARENT') {
+        response = await authAPI.registerParent({ email, password, name, phone })
+      } else if (role === 'THERAPIST') {
+        response = await authAPI.registerTherapist({ email, password, name, phone, specialization: specialization!, experience: experience!, baseCostPerSession: baseCostPerSession! })
+      } else if (role === 'ADMIN') {
+        response = await authAPI.registerAdmin({ email, password, name })
+      } else {
+        throw new Error('Invalid role')
+      }
+      
+      const { user: userData, token } = response.data
+      localStorage.setItem('token', token)
+      localStorage.setItem('user', JSON.stringify(userData))
+      setUser(userData)
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || error.message || 'Registration failed')
     }
   }
 
@@ -136,6 +164,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     loading,
     login,
+    register,
     registerParent,
     registerTherapist,
     registerAdmin,

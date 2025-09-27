@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteChild = exports.updateChild = exports.addChild = exports.getChildren = exports.getParentProfile = void 0;
+exports.listActiveTherapists = exports.deleteChild = exports.updateChild = exports.addChild = exports.getChildren = exports.getParentProfile = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 const getParentProfile = (userId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -39,3 +39,18 @@ const deleteChild = (childId, parentId) => __awaiter(void 0, void 0, void 0, fun
     });
 });
 exports.deleteChild = deleteChild;
+const listActiveTherapists = () => __awaiter(void 0, void 0, void 0, function* () {
+    return prisma.therapistProfile.findMany({
+        where: { status: 'ACTIVE' },
+        select: {
+            id: true,
+            name: true,
+            specialization: true,
+            experience: true,
+            baseCostPerSession: true,
+            averageRating: true,
+        },
+        orderBy: { name: 'asc' },
+    });
+});
+exports.listActiveTherapists = listActiveTherapists;

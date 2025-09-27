@@ -86,6 +86,7 @@ export const parentAPI = {
 // Therapist API
 export const therapistAPI = {
   getProfile: () => api.get('/therapists/me/profile'),
+  getPublicList: () => api.get('/therapists/public'),
   createTimeSlots: (data: {
     date: string
     slots: { startTime: string; endTime: string }[]

@@ -42,13 +42,13 @@ const LandingNavbar: React.FC = () => {
           <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
             <Link
-              to="/login"
+              to="/login/parent"
               className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             >
               Sign In
             </Link>
             <Link
-              to="/register"
+              to="/register/parent"
               className="btn btn-primary btn-sm"
             >
               Get Started

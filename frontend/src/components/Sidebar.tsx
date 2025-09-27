@@ -77,16 +77,7 @@ const Sidebar: React.FC = () => {
         </div>
       </nav>
       
-      <div className="absolute bottom-6 left-6 right-6">
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-          <div className="flex items-center space-x-2">
-            <Shield className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              Role: {user?.role}
-            </span>
-          </div>
-        </div>
-      </div>
+      {/* Removed role badge */}
     </div>
   )
 }
