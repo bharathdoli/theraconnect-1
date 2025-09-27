@@ -42,7 +42,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteChildHandler = exports.updateChildHandler = exports.addChildHandler = exports.getMyChildrenHandler = exports.getMyProfileHandler = void 0;
+exports.getActiveTherapistsHandler = exports.deleteChildHandler = exports.updateChildHandler = exports.addChildHandler = exports.getMyChildrenHandler = exports.getMyProfileHandler = void 0;
 const parentService = __importStar(require("./parent.service"));
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
@@ -119,3 +119,13 @@ const deleteChildHandler = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.deleteChildHandler = deleteChildHandler;
+const getActiveTherapistsHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const therapists = yield parentService.listActiveTherapists();
+        res.status(200).json(therapists);
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Failed to retrieve active therapists' });
+    }
+});
+exports.getActiveTherapistsHandler = getActiveTherapistsHandler;

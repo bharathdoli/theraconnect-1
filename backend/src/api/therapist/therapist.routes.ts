@@ -7,8 +7,9 @@ import {
   getMyProfileHandler,
   createTimeSlotsHandler,
   requestLeaveHandler,
+  getMySlotsForDateHandler,
 } from './therapist.controller';
-import { createTimeSlotsSchema, requestLeaveSchema } from './therapist.validation';
+import { createTimeSlotsSchema, requestLeaveSchema, getSlotsForDateSchema } from './therapist.validation';
 
 const prisma = new PrismaClient();
 
@@ -50,6 +51,11 @@ router.post(
   '/me/slots',
   validate({ body: createTimeSlotsSchema.shape.body }), // <-- just the schema
   createTimeSlotsHandler
+)
+router.get(
+  '/me/slots',
+  validate({ query: getSlotsForDateSchema.shape.query }),
+  getMySlotsForDateHandler
 )
 router.post('/me/leaves', validate({body : requestLeaveSchema.shape.body}), requestLeaveHandler);
 

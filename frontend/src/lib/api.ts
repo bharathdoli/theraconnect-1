@@ -29,9 +29,26 @@ api.interceptors.response.use(
   (response: any) => response,
   (error: any) => {
     if (error.response?.status === 401) {
+      // Try to route the user to the correct login page based on their last known role
+      const userRaw = localStorage.getItem('user')
+      let role: string | undefined
+      try {
+        role = userRaw ? JSON.parse(userRaw)?.role : undefined
+      } catch {}
+
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      window.location.href = '/login'
+
+      if (role === 'THERAPIST') {
+        window.location.href = '/login/therapist'
+      } else if (role === 'PARENT') {
+        window.location.href = '/login/parent'
+      } else if (role === 'ADMIN') {
+        window.location.href = '/login/admin'
+      } else {
+        // Fallback to landing page which has all login choices
+        window.location.href = '/'
+      }
     }
     return Promise.reject(error)
   }
@@ -81,12 +98,15 @@ export const parentAPI = {
     api.put(`/parents/me/children/${childId}`, data),
   deleteChild: (childId: string) =>
     api.delete(`/parents/me/children/${childId}`),
+  // Returns only ACTIVE therapists
+  getActiveTherapists: () => api.get('/parents/therapists'),
 }
 
 // Therapist API
 export const therapistAPI = {
   getProfile: () => api.get('/therapists/me/profile'),
   getPublicList: () => api.get('/therapists/public'),
+  getMySlots: (date: string) => api.get(`/therapists/me/slots`, { params: { date } }),
   createTimeSlots: (data: {
     date: string
     slots: { startTime: string; endTime: string }[]

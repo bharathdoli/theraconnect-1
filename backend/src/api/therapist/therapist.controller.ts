@@ -37,3 +37,14 @@ export const requestLeaveHandler = async (req: Request, res: Response) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+export const getMySlotsForDateHandler = async (req: Request, res: Response) => {
+  try {
+    const therapistId = await getTherapistId(req.user!.userId);
+    const date = (req.query as any).date as string;
+    const slots = await therapistService.getMySlotsForDate(therapistId, { date });
+    res.status(200).json(slots);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};

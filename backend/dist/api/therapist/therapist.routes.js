@@ -50,5 +50,6 @@ router.use(auth_middleware_1.authenticate, (0, auth_middleware_1.authorize)([cli
 router.get('/me/profile', therapist_controller_1.getMyProfileHandler);
 router.post('/me/slots', (0, validate_middleware_1.validate)({ body: therapist_validation_1.createTimeSlotsSchema.shape.body }), // <-- just the schema
 therapist_controller_1.createTimeSlotsHandler);
+router.get('/me/slots', (0, validate_middleware_1.validate)({ query: therapist_validation_1.getSlotsForDateSchema.shape.query }), therapist_controller_1.getMySlotsForDateHandler);
 router.post('/me/leaves', (0, validate_middleware_1.validate)({ body: therapist_validation_1.requestLeaveSchema.shape.body }), therapist_controller_1.requestLeaveHandler);
 exports.default = router;

@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Role, TherapistStatus } from '@prisma/client';
 import { z } from 'zod';
 import { sendNotification } from '../../services/notification.service';
 import type { createBookingSchema } from './booking.validation';
@@ -15,6 +15,7 @@ export const getAvailableSlots = async (therapistId: string, date: string) => {
             therapistId,
             isBooked: false,
             startTime: { gte: startOfDay, lte: endOfDay },
+            therapist: { status: TherapistStatus.ACTIVE },
         },
         orderBy: { startTime: 'asc' },
     });
@@ -28,6 +29,9 @@ export const createBooking = async (parentId: string, input: CreateBookingInput)
         include: { therapist: true },
     });
     if (!timeSlot) throw new Error('This time slot is not available.');
+    if (timeSlot.therapist.status !== TherapistStatus.ACTIVE) {
+        throw new Error('This therapist is not available for booking.');
+    }
 
     const child = await prisma.child.findFirst({
         where: { id: childId, parentId },
@@ -88,7 +92,10 @@ export const createBooking = async (parentId: string, input: CreateBookingInput)
 };
 
 export const getMyBookings = async (userId: string, role: Role) => {
-    const whereClause = role === Role.PARENT ? { parent: { userId } } : { therapist: { userId } };
+    const whereClause =
+        role === Role.PARENT
+            ? { parent: { userId } }
+            : { therapist: { userId, status: TherapistStatus.ACTIVE } };
     return prisma.booking.findMany({
         where: whereClause,
         include: {
@@ -98,5 +105,5 @@ export const getMyBookings = async (userId: string, role: Role) => {
             timeSlot: true,
         },
         orderBy: { timeSlot: { startTime: 'desc' }}
-    })
+    });
 };

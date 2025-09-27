@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.requestLeave = exports.createTimeSlots = exports.getTherapistProfile = void 0;
+exports.getMySlotsForDate = exports.requestLeave = exports.createTimeSlots = exports.getTherapistProfile = void 0;
 const client_1 = require("@prisma/client");
 const notification_service_1 = require("../../services/notification.service");
 const prisma = new client_1.PrismaClient();
@@ -63,3 +63,16 @@ const requestLeave = (therapistId, input) => __awaiter(void 0, void 0, void 0, f
     return { message: 'Leave approved and affected bookings have been cancelled.' };
 });
 exports.requestLeave = requestLeave;
+const getMySlotsForDate = (therapistId, input) => __awaiter(void 0, void 0, void 0, function* () {
+    const { date } = input;
+    const dayStart = new Date(`${date}T00:00:00.000Z`);
+    const dayEnd = new Date(`${date}T23:59:59.999Z`);
+    return prisma.timeSlot.findMany({
+        where: {
+            therapistId,
+            startTime: { gte: dayStart, lte: dayEnd },
+        },
+        orderBy: { startTime: 'asc' },
+    });
+});
+exports.getMySlotsForDate = getMySlotsForDate;

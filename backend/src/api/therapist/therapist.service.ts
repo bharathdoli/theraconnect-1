@@ -6,6 +6,7 @@ import type { requestLeaveSchema, createTimeSlotsSchema } from './therapist.vali
 const prisma = new PrismaClient();
 type RequestLeaveInput = z.infer<typeof requestLeaveSchema>['body'];
 type CreateTimeSlotsInput = z.infer<typeof createTimeSlotsSchema>['body'];
+type GetSlotsInput = { date: string };
 
 export const getTherapistProfile = async (userId: string) => {
     return prisma.therapistProfile.findUnique({ where: { userId } });
@@ -58,4 +59,17 @@ export const requestLeave = async (therapistId: string, input: RequestLeaveInput
     });
   }
   return { message: 'Leave approved and affected bookings have been cancelled.' };
+};
+
+export const getMySlotsForDate = async (therapistId: string, input: GetSlotsInput) => {
+  const { date } = input;
+  const dayStart = new Date(`${date}T00:00:00.000Z`);
+  const dayEnd = new Date(`${date}T23:59:59.999Z`);
+  return prisma.timeSlot.findMany({
+    where: {
+      therapistId,
+      startTime: { gte: dayStart, lte: dayEnd },
+    },
+    orderBy: { startTime: 'asc' },
+  });
 };

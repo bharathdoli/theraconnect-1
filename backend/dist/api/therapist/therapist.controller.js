@@ -42,7 +42,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.requestLeaveHandler = exports.createTimeSlotsHandler = exports.getMyProfileHandler = void 0;
+exports.getMySlotsForDateHandler = exports.requestLeaveHandler = exports.createTimeSlotsHandler = exports.getMyProfileHandler = void 0;
 const therapistService = __importStar(require("./therapist.service"));
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
@@ -84,3 +84,15 @@ const requestLeaveHandler = (req, res) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.requestLeaveHandler = requestLeaveHandler;
+const getMySlotsForDateHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const therapistId = yield getTherapistId(req.user.userId);
+        const date = req.query.date;
+        const slots = yield therapistService.getMySlotsForDate(therapistId, { date });
+        res.status(200).json(slots);
+    }
+    catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+exports.getMySlotsForDateHandler = getMySlotsForDateHandler;

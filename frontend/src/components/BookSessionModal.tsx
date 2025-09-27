@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useQuery, useMutation } from 'react-query'
-import { parentAPI, slotsAPI } from '../lib/api'
+import { parentAPI, bookingAPI } from '../lib/api'
 import { X, Calendar, Clock } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -46,7 +46,9 @@ const BookSessionModal: React.FC<BookSessionModalProps> = ({ onClose, onSuccess 
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<BookingFormData>()
+  const selectedTimeSlotId = watch('timeSlotId')
 
   const { data: children = [] } = useQuery(
     'children',
@@ -56,22 +58,24 @@ const BookSessionModal: React.FC<BookSessionModalProps> = ({ onClose, onSuccess 
     }
   )
 
-  // Mock therapists data - in a real app, this would come from an API
-  const therapists: Therapist[] = [
-    { id: '1', name: 'Dr. Sarah Johnson', specialization: 'Child Psychology', baseCostPerSession: 120 },
-    { id: '2', name: 'Dr. Michael Chen', specialization: 'Speech Therapy', baseCostPerSession: 100 },
-    { id: '3', name: 'Dr. Emily Rodriguez', specialization: 'Occupational Therapy', baseCostPerSession: 110 },
-  ]
+  // Load ACTIVE therapists from backend
+  const { data: therapists = [], isLoading: loadingTherapists } = useQuery(
+    'activeTherapists',
+    parentAPI.getActiveTherapists,
+    { select: (response) => response.data }
+  )
 
   const fetchAvailableSlots = async (therapistId: string, date: string) => {
     if (!therapistId || !date) return
     
     setLoadingSlots(true)
     try {
-      const response = await slotsAPI.getAvailableSlots(therapistId, date)
+      const response = await bookingAPI.getAvailableSlots(therapistId, date)
       setAvailableSlots(response.data)
     } catch (error: any) {
-      toast.error('Failed to fetch available slots')
+      const msg = error?.response?.data?.message || error?.message || 'Failed to fetch available slots'
+      console.error('Fetch slots error:', error)
+      toast.error(msg)
       setAvailableSlots([])
     } finally {
       setLoadingSlots(false)
@@ -87,15 +91,29 @@ const BookSessionModal: React.FC<BookSessionModalProps> = ({ onClose, onSuccess 
   }
 
   const handleDateChange = (date: string) => {
-    setSelectedDate(date)
+    // Normalize to strict YYYY-MM-DD without timezone conversion
+    let normalized = date
+    const isoYMD = /^\d{4}-\d{2}-\d{2}$/
+    if (!isoYMD.test(normalized)) {
+      if (date.includes('/')) {
+        // Try dd/mm/yyyy -> yyyy-mm-dd
+        const [a, b, c] = date.split('/')
+        if (a && b && c) {
+          // If first is >12 treat as DD/MM/YYYY
+          if (parseInt(a, 10) > 12) normalized = `${c}-${b.padStart(2,'0')}-${a.padStart(2,'0')}`
+          else normalized = `${c}-${a.padStart(2,'0')}-${b.padStart(2,'0')}`
+        }
+      }
+    }
+    setSelectedDate(normalized)
     if (selectedTherapist) {
-      fetchAvailableSlots(selectedTherapist, date)
+      fetchAvailableSlots(selectedTherapist, normalized)
     }
   }
 
   const bookSlotMutation = useMutation(
     ({ timeSlotId, childId }: { timeSlotId: string; childId: string }) =>
-      slotsAPI.bookSlot(timeSlotId, childId),
+      bookingAPI.createBooking({ timeSlotId, childId }),
     {
       onSuccess: () => {
         toast.success('Session booked successfully!')
@@ -108,13 +126,17 @@ const BookSessionModal: React.FC<BookSessionModalProps> = ({ onClose, onSuccess 
   )
 
   const onSubmit = (data: BookingFormData) => {
+    if (!data.timeSlotId) {
+      toast.error('Please select a time slot before booking')
+      return
+    }
     bookSlotMutation.mutate({
       timeSlotId: data.timeSlotId,
       childId: data.childId,
     })
   }
 
-  const selectedTherapistData = therapists.find(t => t.id === selectedTherapist)
+  const selectedTherapistData = therapists.find((t: Therapist) => t.id === selectedTherapist)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -167,11 +189,15 @@ const BookSessionModal: React.FC<BookSessionModalProps> = ({ onClose, onSuccess 
               className="input"
             >
               <option value="">Choose a therapist</option>
-              {therapists.map((therapist) => (
+              {loadingTherapists ? (
+                <option value="" disabled>Loading therapists...</option>
+              ) : (
+                therapists.map((therapist: Therapist) => (
                 <option key={therapist.id} value={therapist.id}>
                   {therapist.name} - {therapist.specialization} (${therapist.baseCostPerSession}/session)
                 </option>
-              ))}
+                ))
+              )}
             </select>
             {errors.therapistId && (
               <p className="mt-1 text-sm text-red-600">{errors.therapistId.message}</p>
@@ -264,7 +290,7 @@ const BookSessionModal: React.FC<BookSessionModalProps> = ({ onClose, onSuccess 
             </button>
             <button
               type="submit"
-              disabled={bookSlotMutation.isLoading || !selectedTherapist || !selectedDate}
+              disabled={bookSlotMutation.isLoading || !selectedTherapist || !selectedDate || !selectedTimeSlotId}
               className="btn btn-primary flex-1"
             >
               {bookSlotMutation.isLoading ? 'Booking...' : 'Book Session'}

@@ -25,6 +25,7 @@ interface Booking {
 const TherapistDashboard: React.FC = () => {
   const [showCreateSlotsModal, setShowCreateSlotsModal] = useState(false)
   const [showRequestLeaveModal, setShowRequestLeaveModal] = useState(false)
+  const [selectedSlotsDate, setSelectedSlotsDate] = useState<string>(new Date().toISOString().slice(0,10))
   const queryClient = useQueryClient()
 
   const { data: profile, isLoading: profileLoading } = useQuery(
@@ -52,6 +53,18 @@ const TherapistDashboard: React.FC = () => {
     const today = new Date()
     return bookingDate.toDateString() === today.toDateString()
   })
+
+  // Fetch my slots for selected date
+  const { data: mySlots = [], isLoading: mySlotsLoading, refetch: refetchMySlots } = useQuery(
+    ['therapistSlots', selectedSlotsDate],
+    () => therapistAPI.getMySlots(selectedSlotsDate),
+    { select: (response) => response.data }
+  )
+
+  const handleSlotsDateChange = (val: string) => {
+    // Normalize to YYYY-MM-DD (input type=date already provides this format)
+    setSelectedSlotsDate(val)
+  }
 
   const stats = [
     {
@@ -239,6 +252,57 @@ const TherapistDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* My Slots for Date */}
+      <div className="card">
+        <div className="card-header flex items-center justify-between">
+          <h3 className="card-title">My Slots</h3>
+          <input
+            type="date"
+            value={selectedSlotsDate}
+            onChange={(e) => handleSlotsDateChange(e.target.value)}
+            className="input max-w-xs"
+          />
+        </div>
+        <div className="card-content">
+          {mySlotsLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+              <p className="mt-2 text-gray-600">Loading slots...</p>
+            </div>
+          ) : mySlots.length === 0 ? (
+            <div className="text-center py-8">
+              <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">No slots created for this date</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {mySlots.map((slot: any) => (
+                    <tr key={slot.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(slot.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs rounded-full ${slot.isBooked ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                          {slot.isBooked ? 'Booked' : 'Available'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Upcoming Sessions */}
       <div className="card">
         <div className="card-header">
@@ -313,6 +377,7 @@ const TherapistDashboard: React.FC = () => {
           onClose={() => setShowCreateSlotsModal(false)}
           onSuccess={() => {
             queryClient.invalidateQueries('therapistProfile')
+            queryClient.invalidateQueries('therapistSlots')
             setShowCreateSlotsModal(false)
           }}
         />

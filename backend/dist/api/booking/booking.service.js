@@ -21,6 +21,7 @@ const getAvailableSlots = (therapistId, date) => __awaiter(void 0, void 0, void 
             therapistId,
             isBooked: false,
             startTime: { gte: startOfDay, lte: endOfDay },
+            therapist: { status: client_1.TherapistStatus.ACTIVE },
         },
         orderBy: { startTime: 'asc' },
     });
@@ -35,6 +36,9 @@ const createBooking = (parentId, input) => __awaiter(void 0, void 0, void 0, fun
     });
     if (!timeSlot)
         throw new Error('This time slot is not available.');
+    if (timeSlot.therapist.status !== client_1.TherapistStatus.ACTIVE) {
+        throw new Error('This therapist is not available for booking.');
+    }
     const child = yield prisma.child.findFirst({
         where: { id: childId, parentId },
     });
@@ -86,7 +90,9 @@ const createBooking = (parentId, input) => __awaiter(void 0, void 0, void 0, fun
 });
 exports.createBooking = createBooking;
 const getMyBookings = (userId, role) => __awaiter(void 0, void 0, void 0, function* () {
-    const whereClause = role === client_1.Role.PARENT ? { parent: { userId } } : { therapist: { userId } };
+    const whereClause = role === client_1.Role.PARENT
+        ? { parent: { userId } }
+        : { therapist: { userId, status: client_1.TherapistStatus.ACTIVE } };
     return prisma.booking.findMany({
         where: whereClause,
         include: {

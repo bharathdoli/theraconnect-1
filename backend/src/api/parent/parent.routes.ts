@@ -8,12 +8,11 @@ import {
   addChildHandler,
   updateChildHandler,
   deleteChildHandler,
+  getActiveTherapistsHandler,
 } from './parent.controller';
 import { childIdParamSchema, childSchema, updateChildSchema } from './parent.validation';
-import { PrismaClient } from '@prisma/client';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // All routes are for authenticated Parents only
 router.use(authenticate, authorize([Role.PARENT]));
@@ -27,24 +26,6 @@ router.put('/me/children/:childId', validate({ body: updateChildSchema.shape.bod
 router.delete('/me/children/:childId', validate({ params: childIdParamSchema.shape.params }), deleteChildHandler);
 
 // Public list of active therapists for parents
-router.get('/therapists', async (req, res) => {
-  try {
-    const therapists = await prisma.therapistProfile.findMany({
-      where: { status: 'ACTIVE' },
-      select: {
-        id: true,
-        name: true,
-        specialization: true,
-        experience: true,
-        baseCostPerSession: true,
-        averageRating: true,
-      },
-      orderBy: { name: 'asc' },
-    });
-    res.json(therapists);
-  } catch (e: any) {
-    res.status(500).json({ message: e.message });
-  }
-});
+router.get('/therapists', getActiveTherapistsHandler);
 
 export default router;

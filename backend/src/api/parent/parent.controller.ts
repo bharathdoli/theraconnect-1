@@ -70,3 +70,12 @@ export const deleteChildHandler = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Failed to delete child' });
     }
 }
+
+export const getActiveTherapistsHandler = async (req: Request, res: Response) => {
+    try {
+        const therapists = await parentService.listActiveTherapists();
+        res.status(200).json(therapists);
+    } catch (error: any) {
+        res.status(500).json({ message: 'Failed to retrieve active therapists' });
+    }
+}
