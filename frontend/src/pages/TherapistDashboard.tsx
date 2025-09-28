@@ -1,8 +1,12 @@
 import React, { useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { therapistAPI, bookingAPI } from '../lib/api'
+<<<<<<< HEAD
 import { Calendar, Clock, Users, Plus, UserCheck } from 'lucide-react'
 import CreateTimeSlotsModal from '../components/CreateTimeSlotsModal'
+=======
+import { Calendar, Clock, Users, UserCheck } from 'lucide-react'
+>>>>>>> 3d1437e (final commit)
 import RequestLeaveModal from '../components/RequestLeaveModal'
 
 interface Booking {
@@ -23,9 +27,13 @@ interface Booking {
 }
 
 const TherapistDashboard: React.FC = () => {
+<<<<<<< HEAD
   const [showCreateSlotsModal, setShowCreateSlotsModal] = useState(false)
   const [showRequestLeaveModal, setShowRequestLeaveModal] = useState(false)
   const [selectedSlotsDate, setSelectedSlotsDate] = useState<string>(new Date().toISOString().slice(0,10))
+=======
+  const [showRequestLeaveModal, setShowRequestLeaveModal] = useState(false)
+>>>>>>> 3d1437e (final commit)
   const queryClient = useQueryClient()
 
   const { data: profile, isLoading: profileLoading } = useQuery(
@@ -54,6 +62,7 @@ const TherapistDashboard: React.FC = () => {
     return bookingDate.toDateString() === today.toDateString()
   })
 
+<<<<<<< HEAD
   // Fetch my slots for selected date
   const { data: mySlots = [], isLoading: mySlotsLoading, refetch: refetchMySlots } = useQuery(
     ['therapistSlots', selectedSlotsDate],
@@ -65,6 +74,8 @@ const TherapistDashboard: React.FC = () => {
     // Normalize to YYYY-MM-DD (input type=date already provides this format)
     setSelectedSlotsDate(val)
   }
+=======
+>>>>>>> 3d1437e (final commit)
 
   const stats = [
     {
@@ -111,6 +122,7 @@ const TherapistDashboard: React.FC = () => {
         </div>
         <div className="flex space-x-3">
           <button
+<<<<<<< HEAD
             onClick={() => setShowCreateSlotsModal(true)}
             className="btn btn-primary flex items-center space-x-2"
           >
@@ -118,6 +130,8 @@ const TherapistDashboard: React.FC = () => {
             <span>Create Time Slots</span>
           </button>
           <button
+=======
+>>>>>>> 3d1437e (final commit)
             onClick={() => setShowRequestLeaveModal(true)}
             className="btn btn-secondary flex items-center space-x-2"
           >
@@ -252,6 +266,7 @@ const TherapistDashboard: React.FC = () => {
         </div>
       </div>
 
+<<<<<<< HEAD
       {/* My Slots for Date */}
       <div className="card">
         <div className="card-header flex items-center justify-between">
@@ -302,6 +317,8 @@ const TherapistDashboard: React.FC = () => {
           )}
         </div>
       </div>
+=======
+>>>>>>> 3d1437e (final commit)
 
       {/* Upcoming Sessions */}
       <div className="card">
@@ -372,6 +389,7 @@ const TherapistDashboard: React.FC = () => {
       </div>
 
       {/* Modals */}
+<<<<<<< HEAD
       {showCreateSlotsModal && (
         <CreateTimeSlotsModal
           onClose={() => setShowCreateSlotsModal(false)}
@@ -383,6 +401,8 @@ const TherapistDashboard: React.FC = () => {
         />
       )}
 
+=======
+>>>>>>> 3d1437e (final commit)
       {showRequestLeaveModal && (
         <RequestLeaveModal
           onClose={() => setShowRequestLeaveModal(false)}

@@ -12,7 +12,15 @@ export const validate = (schemas: SchemaParts) => async (req: Request, res: Resp
     const validatedData: any = {};
 
     if (schemas.body) validatedData.body = await schemas.body.parseAsync(req.body);
+<<<<<<< HEAD
     if (schemas.query) validatedData.query = await schemas.query.parseAsync(req.query);
+=======
+    if (schemas.query) {
+      console.log('Validating query:', req.query);
+      validatedData.query = await schemas.query.parseAsync(req.query);
+      console.log('Query validation passed');
+    }
+>>>>>>> 3d1437e (final commit)
     if (schemas.params) validatedData.params = await schemas.params.parseAsync(req.params);
 
     // Replace request data with validated data
@@ -23,6 +31,10 @@ export const validate = (schemas: SchemaParts) => async (req: Request, res: Resp
     return next();
   } catch (error: unknown) {
     if (error instanceof ZodError) {
+<<<<<<< HEAD
+=======
+      console.error('Validation error:', error.issues);
+>>>>>>> 3d1437e (final commit)
       const formattedErrors = error.issues.map((err) => ({
         field: err.path.join('.') || 'body',
         message: err.message,

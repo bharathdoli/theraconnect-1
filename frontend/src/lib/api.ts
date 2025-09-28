@@ -106,11 +106,14 @@ export const parentAPI = {
 export const therapistAPI = {
   getProfile: () => api.get('/therapists/me/profile'),
   getPublicList: () => api.get('/therapists/public'),
+<<<<<<< HEAD
   getMySlots: (date: string) => api.get(`/therapists/me/slots`, { params: { date } }),
   createTimeSlots: (data: {
     date: string
     slots: { startTime: string; endTime: string }[]
   }) => api.post('/therapists/me/slots', data),
+=======
+>>>>>>> 3d1437e (final commit)
   requestLeave: (data: {
     date: string
     type: 'FULL_DAY'
@@ -136,6 +139,7 @@ export const bookingAPI = {
   getMyBookings: () => api.get('/bookings/me'),
 }
 
+<<<<<<< HEAD
 // Slots API
 export const slotsAPI = {
   getAvailableSlots: (therapistId: string, date: string) =>
@@ -143,3 +147,6 @@ export const slotsAPI = {
   bookSlot: (timeSlotId: string, childId: string) =>
     api.post('/slots/book', { timeSlotId, childId }),
 }
+=======
+
+>>>>>>> 3d1437e (final commit)

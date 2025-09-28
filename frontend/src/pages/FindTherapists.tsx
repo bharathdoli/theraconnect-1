@@ -1,9 +1,22 @@
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 import { therapistAPI } from '../lib/api'
+<<<<<<< HEAD
 
 const FindTherapists: React.FC = () => {
   const [query, setQuery] = useState('')
+=======
+import BookingModal from '../components/BookingModal'
+
+const FindTherapists: React.FC = () => {
+  const [query, setQuery] = useState('')
+  const [selectedTherapist, setSelectedTherapist] = useState<{
+    id: string
+    name: string
+    specialization: string
+    baseCostPerSession: number
+  } | null>(null)
+>>>>>>> 3d1437e (final commit)
 
   const { data: therapists = [], isLoading } = useQuery(
     'therapistsList',
@@ -37,10 +50,40 @@ const FindTherapists: React.FC = () => {
               <div className="text-sm">Experience: {t.experience} years</div>
               <div className="text-sm">Base fee: ${t.baseCostPerSession}</div>
               <div className="text-sm">Rating: {t.averageRating || 'N/A'}</div>
+<<<<<<< HEAD
+=======
+              <div className="pt-3">
+                <button
+                  className="btn btn-primary btn-sm w-full"
+                  onClick={() => setSelectedTherapist({
+                    id: t.id,
+                    name: t.name,
+                    specialization: t.specialization,
+                    baseCostPerSession: t.baseCostPerSession
+                  })}
+                >
+                  Book Session
+                </button>
+              </div>
+>>>>>>> 3d1437e (final commit)
             </div>
           ))}
         </div>
       )}
+<<<<<<< HEAD
+=======
+
+      {selectedTherapist && (
+        <BookingModal
+          therapistId={selectedTherapist.id}
+          therapistName={selectedTherapist.name}
+          therapistSpecialization={selectedTherapist.specialization}
+          therapistFee={selectedTherapist.baseCostPerSession}
+          onClose={() => setSelectedTherapist(null)}
+          onSuccess={() => setSelectedTherapist(null)}
+        />
+      )}
+>>>>>>> 3d1437e (final commit)
     </div>
   )
 }

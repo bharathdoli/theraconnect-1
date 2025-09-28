@@ -128,6 +128,7 @@ const ParentDashboard: React.FC = () => {
             <Plus className="h-4 w-4" />
             Add Child
           </button>
+<<<<<<< HEAD
           <button
             onClick={() => setShowBookSessionModal(true)}
             className="btn btn-secondary flex items-center gap-2"
@@ -135,6 +136,8 @@ const ParentDashboard: React.FC = () => {
             <Heart className="h-4 w-4" />
             Book Session
           </button>
+=======
+>>>>>>> 3d1437e (final commit)
         </div>
       </div>
 
@@ -259,6 +262,7 @@ const ParentDashboard: React.FC = () => {
           <div className="p-6">
             {bookingsLoading ? (
               <p className="text-center text-gray-500">Loading bookings...</p>
+<<<<<<< HEAD
             ) : upcomingBookings.length === 0 ? (
               <div className="text-center space-y-4">
                 <Calendar className="h-10 w-10 text-gray-400 mx-auto" />
@@ -317,6 +321,72 @@ const ParentDashboard: React.FC = () => {
                     </div>
                   </div>
                 ))}
+=======
+            ) : (
+              <div className="space-y-4">
+                {upcomingBookings.length === 0 ? (
+                  <div className="text-center space-y-4">
+                    <Calendar className="h-10 w-10 text-gray-400 mx-auto" />
+                    <p className="text-gray-600 dark:text-gray-300">
+                      No upcoming sessions. Book your first therapy session.
+                    </p>
+                  </div>
+                ) : (
+                  upcomingBookings.map((booking: Booking) => (
+                    <div
+                      key={booking.id}
+                      className="p-4 border rounded-lg hover:shadow-md transition"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold">
+                              {booking.child.name.charAt(0)}
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-gray-900 dark:text-white">
+                                {booking.child.name}
+                              </h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-300">
+                                with {booking.therapist.name}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {new Date(
+                              booking.timeSlot.startTime
+                            ).toLocaleDateString()}{" "}
+                            •{" "}
+                            {new Date(
+                              booking.timeSlot.startTime
+                            ).toLocaleTimeString()}
+                          </div>
+                        </div>
+                        <span
+                          className={`px-3 py-1 text-xs font-medium rounded-full ${
+                            booking.status === "SCHEDULED"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {booking.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+                
+                {/* Always show Book a Session button */}
+                <div className="text-center pt-4 border-t">
+                  <button
+                    onClick={() => setShowBookSessionModal(true)}
+                    className="btn btn-primary"
+                  >
+                    <Heart className="h-4 w-4 mr-2" />
+                    Book Another Session
+                  </button>
+                </div>
+>>>>>>> 3d1437e (final commit)
               </div>
             )}
           </div>
@@ -336,13 +406,23 @@ const ParentDashboard: React.FC = () => {
 
       {showBookSessionModal && (
         <BookSessionModal
+<<<<<<< HEAD
           onClose={() => setShowBookSessionModal(false)}
+=======
+          isOpen={showBookSessionModal}
+          onClose={() => setShowBookSessionModal(false)}
+          children={children}
+>>>>>>> 3d1437e (final commit)
           onSuccess={() => {
             queryClient.invalidateQueries("parentBookings")
             setShowBookSessionModal(false)
           }}
         />
       )}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3d1437e (final commit)
     </div>
   )
 }
